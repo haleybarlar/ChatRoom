@@ -3,34 +3,48 @@ const url = 'ws://localhost:8080'
 const connection = new WebSocket(url)
 const prompt = require('prompt-sync')({sigint: true})
 
-let close = false
+let getUser = prompt('whats your username')
 
 connection.onmessage = (e) => {
     console.log(e.data)
     let message = prompt('whats your message')
     connection.send(JSON.stringify({
         message: message,
-        username: "haley"
+        messageType: 'message',
+        username: getUser
     }))
-
-    if (message === "stop") {
-        close = true
-    }
-
 }
 
-connection.onopen = () => {
-    // while (!close) {
-        let message = prompt('whats your message')
-        connection.send(JSON.stringify({
-            message: message,
-            username: "haley"
-        }))
+// what we need to do is change the payload( what's in stringify ) and add message type to it
 
-        if (message === "stop") {
-            close = true
-        }
-    // }
+connection.onopen = () => {
+    connection.send(JSON.stringify({
+        username: getUser
+    }))
+
+    let getPersonMessage = prompt('Who do you want to talk to?')
+    
+    if (getPersonMessage.toLowerCase() === 'everyone') {
+        connection.send(JSON.stringify({
+            who: 'everyone',
+            messageType: 'who',
+            username: getUser
+        }))
+    } else if (getPersonMessage.toLowerCase() === 'group') {
+        whichGroup = prompt('which group')
+        connection.send(JSON.stringify({
+            group: whichGroup,
+            messageType: 'who',
+            username: getUser
+        }))
+    } else {
+        whichPerson = prompt('who to talk to')
+        connection.send(JSON.stringify({
+            username: whichPerson,
+            messageType: 'who',
+            username: getUser
+        }))
+    }
 }
 
 connection.onerror = (error) => {
